@@ -1,3 +1,4 @@
+#   転置の実行関数
 def tennti(table, num):
     return_lst = []
     for i in table:
@@ -5,16 +6,19 @@ def tennti(table, num):
     return "".join(return_lst)
 
 
+#   左ビットシフトを間違えた。削除ビットを末尾に戻していない
 # def ls(x):
 #     long = len(x)
 #     light_shift = int(x, 2) << 1
 #     return f"{light_shift:b}".zfill(long)
 
 
+#   左ビットシフト(light_shiftの略)
 def ls(x, n):
     return x[n:] + x[:n]
 
 
+#   8分割するリスト
 def f_split(x, k):
     r_l = []
     long = len(x) // k
@@ -24,13 +28,16 @@ def f_split(x, k):
     return r_l
 
 
+#   排他的論理和
 def xor(x, y):
     long = len(x) + len(y)
     xor = int(x, 2) ^ int(y, 2)
     return f"{xor:b}".zfill(long)
 
 
+#   関数F
 def f(key, input):
+    print("-------------以下関数F内の処理--------------")
     SBOX = [
         [
             [14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7],
@@ -92,27 +99,29 @@ def f(key, input):
         24, 25, 26, 27, 28, 29,
         28, 29, 30, 31, 32, 1
     ], input) 
-    print("拡大転置後:" + k_input)
+    print("拡大転置後:" + k_input + ", 長さ" + str(len(k_input)))
     
     f_xor_l = []
+    print("以下のリスト、8分割した拡大鍵(上)、8分割した入力値(下)")
     for i, n in zip(f_split(key, 8), f_split(k_input, 8)):
         a = int(i, 2) ^ int(n, 2)
         f_xor_l.append(f"{a:b}".zfill(6))
-    print("aa")
+        
+    print("8分割、排他的論理和後のリスト")
     print(f_xor_l)
-    print("aa")
         
     sbox_lst = []
     for i, (n, m) in enumerate(zip(SBOX, f_xor_l)):
         a = m[0] + m[5]
         b = m[1:5]
-        print(a,b)
+        #print(a,b)
         num = SBOX[i][int(a, 2)][int(b, 2)]
-        print(i, int(a, 2), int(b, 2), SBOX[i][int(a, 2)][int(b, 2)])
+        #print(i, int(a, 2), int(b, 2), SBOX[i][int(a, 2)][int(b, 2)])
         sbox_lst.append(f"{num:b}".zfill(4))
-    print(sbox_lst)
+    #print(sbox_lst)
     sbox =  "".join(sbox_lst)
-    print("sbox:" + str(len(sbox)) + sbox)
+    
+    print("sbox後:" + sbox + ", 長さ" + str(len(sbox)))
     result = tennti([
         16, 7, 20, 21,
         29, 12, 28, 17,
@@ -124,13 +133,17 @@ def f(key, input):
         22, 11, 4, 25
         ], sbox)
     
+    print("-------------以下関数F内の処理終了--------------")
     return result
 
+
+#   学籍番号から平文の生成
 def change_key(gakuseki, long):
     k2 = f"{gakuseki:b}"*4
     return k2.zfill(long)
     
-    
+
+#   2分割の関数
 def split(str2):
     long = len(str2) // 2
     result1 = str2[:long]
@@ -138,13 +151,17 @@ def split(str2):
     return result1, result2
 
 
+#   結合する関数
 def merge(str2_1, str2_2):
     return str2_1 + str2_2
 
 
 if __name__ == '__main__':
+    print("-------------以下鍵の処理--------------")
+    #   鍵
     key = "1001111101010101010100000110100010110010100111101110101000111001"
     
+    #   pc1の転置
     pc1 = tennti([57, 49, 41, 33, 25, 17, 9,
                   1, 58, 50, 42, 34, 26, 18,
                   10, 2, 59, 51, 43, 35, 27,
@@ -154,20 +171,27 @@ if __name__ == '__main__':
                   14, 6, 61, 53, 45, 37, 29,
                   21, 13, 5, 28, 20,12, 4
                   ], key)
-    print(pc1)
+    #   pc1のプリント
+    print("PC1での転置:" + pc1 + ", 長さ" + str(len(pc1)))
     
+    #   2分割
     sp1 = split(pc1)
-    print(sp1)
+    print("分割後の前半部分:" + sp1[0] + ", 長さ" + str(len(sp1[0])) + "\n" + \
+        "分割後の後半部分:" + sp1[1] + ", 長さ" + str(len(sp1[1])))
     
+    #   分割前半部分の左シフト(今回は1シフト)
     ls1_1 = ls(sp1[0], 1)
-    print(ls1_1)
+    print("分割前半部分の左ビットシフト:" + ls1_1 + ", 長さ" + str(len(ls1_1)))
     
+    #   分割後半部分の左シフト(今回は1シフト)
     ls1_2 = ls(sp1[1], 1)  
-    print(ls1_2)  
+    print("分割後半部分の左ビットシフト:" + ls1_2 + ", 長さ" + str(len(ls1_2)))  
     
+    #   結合
     merge1 = merge(ls1_1, ls1_2)
-    print(merge1)
+    print("結合後の値:" + merge1 + ", 長さ" + str(len(merge1)))
     
+    #   pc2の転置    
     pc2 = tennti([
         14, 17, 11, 24, 1, 5,
         3, 28, 15, 6, 21, 10,
@@ -178,13 +202,18 @@ if __name__ == '__main__':
         44, 49, 39, 56, 34, 53,
         46, 42, 50, 36, 29, 32
         ], merge1)
-    print(str(len(pc2)) + ":" + pc2)
+    print("pc2転置後:" + pc2 + ", 長さ" + str(len(pc2)))
     
     #   初期転置
+    print("-------------以下平文の処理--------------")
     #gaku_bann = input("学籍番号下5桁を入力せよ")
-    gaku_bann = 23048
+    gaku_bann = 23014
+    
+    #   平文の生成
     hirabunn = change_key(gaku_bann, 64) # 普段は
-    print("a :" + hirabunn + str(len(hirabunn)))
+    print("学籍番号より生成した平文:" + hirabunn + ", 長さ" + str(len(hirabunn)))
+    
+    #   初期転置
     start_t = tennti([
         58, 50, 42, 34, 26, 18, 10, 2,
         60, 52, 44, 36, 28, 20, 12, 4,
@@ -195,14 +224,18 @@ if __name__ == '__main__':
         61, 53, 45, 37, 29, 21, 13, 5,
         63, 55, 47, 39, 31, 23, 15, 7
         ], hirabunn)
-    print(start_t)
+    print("初期転置後:" + start_t + ", 長さ" + str(len(start_t)))
     
+    #   2分割
     sp2 = split(start_t)
-    print(sp2)
+    print("分割後の前半部分:" + sp2[0] + ", 長さ" + str(len(sp2[0])) + "\n" + \
+        "分割後の後半部分:" + sp2[1] + ", 長さ" + str(len(sp2[1])))
     
+    #   関数Fの演算
     f1 = f(pc2, sp2[1])
-    print(f1)
+    print("関数F後:" + f1 + ", 長さ" + str(len(f1)))
     
+    #   最後の排他的論理和
     xor1 = int(sp2[0], 2) ^ int(f1, 2)
     xor1 = f"{xor1:b}".zfill(32)
-    print("s" + xor1)
+    print("最後の排他的論理和:" + xor1 + ", 長さ" + str(len(xor1)))
